@@ -20,10 +20,21 @@ public class RowDescriptor {
 
 	private final List<ColumnDescriptor> columns;
 
+	/**
+	 * Create new row from columns descriptor list.
+	 *
+	 * @param columns
+	 *            columns
+	 */
 	public RowDescriptor(List<ColumnDescriptor> columns) {
 		this.columns = columns;
 	}
 
+	/**
+	 * Returns list of all columns.
+	 *
+	 * @return columns
+	 */
 	public List<ColumnDescriptor> getColumns() {
 		return columns;
 	}

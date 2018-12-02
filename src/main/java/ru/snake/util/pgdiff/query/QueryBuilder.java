@@ -6,6 +6,9 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.snake.util.pgdiff.compare.ColumnDescriptor;
+import ru.snake.util.pgdiff.compare.RowDescriptor;
+
 /**
  * Query builder factory.
  *
@@ -63,6 +66,83 @@ public class QueryBuilder {
 		}
 
 		return builder.toString();
+	}
+
+	/**
+	 * Create select query returning ordered data-set from the table.
+	 *
+	 * @param tableName
+	 *            table name
+	 * @param row
+	 *            row structure
+	 * @return query string without parameters
+	 */
+	public static String orderedDatasetQuery(String tableName, RowDescriptor row) {
+		// TODO: Move query generation to template.
+
+		StringBuilder builder = new StringBuilder();
+		builder.append("SELECT ");
+
+		boolean isFirst = true;
+
+		for (ColumnDescriptor column : row.getColumns()) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				builder.append(", ");
+			}
+
+			builder.append('"');
+			builder.append(column.getName());
+			builder.append('"');
+		}
+
+		builder.append(" FROM \"");
+		builder.append(getTableSchema(tableName, "public"));
+		builder.append("\".\"");
+		builder.append(getTableName(tableName));
+		builder.append('"');
+		builder.append(" ORDER BY ");
+
+		isFirst = true;
+
+		for (ColumnDescriptor column : row.getColumns()) {
+			if (isFirst) {
+				isFirst = false;
+			} else {
+				builder.append(", ");
+			}
+
+			builder.append('"');
+			builder.append(column.getName());
+			builder.append("\" ASC");
+
+			if (column.isNullable()) {
+				builder.append(" NULLS LAST");
+			}
+		}
+
+		return builder.toString();
+	}
+
+	private static String getTableName(String fullTableName) {
+		int dotIndex = fullTableName.indexOf('.');
+
+		if (dotIndex != -1) {
+			return fullTableName.substring(dotIndex + 1);
+		}
+
+		return fullTableName;
+	}
+
+	private static String getTableSchema(String fullTableName, String defalutSchema) {
+		int dotIndex = fullTableName.indexOf('.');
+
+		if (dotIndex != -1) {
+			return fullTableName.substring(0, dotIndex);
+		}
+
+		return defalutSchema;
 	}
 
 }
