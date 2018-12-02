@@ -71,3 +71,14 @@ Supported environment variables:
 
 Command-line options have priority over environment variables. Default values used only if environment variable and
 command-line option are empty.
+
+## Build From Source
+
+Building from source require installed JDK and Apache Maven. To build single jar containing all libraries use
+following command:
+
+```shell
+mvn package assembly:single
+```
+
+compiled jar will be placed to target directory with name `pgdiff-${VERSION}-jar-with-dependencies.jar`.
