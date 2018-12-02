@@ -52,6 +52,10 @@ public class ComparatorFactory {
 				comparators.add(ComparatorFactory.createStringComparator(index, nullable));
 				break;
 
+			case BINARY:
+				comparators.add(ComparatorFactory.createBinaryComparator(index, nullable));
+				break;
+
 			default:
 				LOG.warn("Unsupported column type {}, column {} will be ignored", columnType, column.getName());
 				break;
@@ -93,6 +97,10 @@ public class ComparatorFactory {
 
 	private static ResultSetComparator createStringComparator(int index, boolean nullable) {
 		return createComparator(new StringAccessor(index), nullable);
+	}
+
+	private static ResultSetComparator createBinaryComparator(int index, boolean nullable) {
+		return createComparator(new BinaryAccessor(index), nullable);
 	}
 
 	private static <T> ResultSetComparator createComparator(ValueAccessor<T> accessor, boolean nullable) {
