@@ -81,11 +81,17 @@ public class Main {
 				TableName table = new TableName(tableName);
 				TableComparator comparator = new TableComparator(connection1, connection2, table);
 
+				System.out.println(
+						String.format("Comparing tables %s and %s...", table.getTableName1(), table.getTableName2()));
+
 				try {
 					comparator.compare();
-				} catch (TableNotExistsException | QueryExecutionException | DifferentSchemaException e) {
+				} catch (TableNotExistsException e) {
+					System.err.println(String.format("Table %s does not exists in database %s", e.getTableName(),
+							e.getDatabaseName()));
+				} catch (QueryExecutionException | DifferentSchemaException e) {
 					System.err.println(String.format("Failed to compare tables %s and %s: %s", table.getTableName1(),
-							table.getTableName1(), e.getMessage()));
+							table.getTableName2(), e.getMessage()));
 				}
 			}
 		} catch (SQLException e) {

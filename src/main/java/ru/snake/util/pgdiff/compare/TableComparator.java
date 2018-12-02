@@ -9,6 +9,15 @@ import ru.snake.util.pgdiff.comparator.ComparatorFactory;
 import ru.snake.util.pgdiff.comparator.ResultSetComparator;
 import ru.snake.util.pgdiff.query.QueryBuilder;
 
+/**
+ * Table comparator based on merging two sorted result sets. Comparator read
+ * both tables simultaneously comparing every next row with other table. If rows
+ * similar - move both result sets to next row. Otherwise show smaller row and
+ * move corresponding data-set forward.
+ *
+ * @author snake
+ *
+ */
 public class TableComparator {
 
 	private final Connection connection1;
@@ -21,6 +30,16 @@ public class TableComparator {
 
 	private final String options;
 
+	/**
+	 * Create new instance of table comparator.
+	 *
+	 * @param connection1
+	 *            first connection
+	 * @param connection2
+	 *            second connection
+	 * @param table
+	 *            table description
+	 */
 	public TableComparator(Connection connection1, Connection connection2, TableName table) {
 		this.connection1 = connection1;
 		this.connection2 = connection2;
@@ -29,6 +48,16 @@ public class TableComparator {
 		this.options = table.getOptions();
 	}
 
+	/**
+	 * Compare the tables.
+	 *
+	 * @throws TableNotExistsException
+	 *             if table does not exists in database
+	 * @throws QueryExecutionException
+	 *             if query execution error occurred
+	 * @throws DifferentSchemaException
+	 *             if schema of two tables are different
+	 */
 	public void compare() throws TableNotExistsException, QueryExecutionException, DifferentSchemaException {
 		RowDescriptor row = RowDescriptor.fromTable(this.connection1, this.tableName1);
 		RowDescriptor otherRow = RowDescriptor.fromTable(this.connection2, this.tableName2);
@@ -45,42 +74,42 @@ public class TableComparator {
 				PreparedStatement statement2 = this.connection2.prepareStatement(queryString2);
 				ResultSet resultSet1 = statement1.executeQuery();
 				ResultSet resultSet2 = statement2.executeQuery();) {
-			boolean hasNext1 = resultSet1.next();
-			boolean hasNext2 = resultSet2.next();
+			RowIterator it1 = RowIterator.create(resultSet1, row);
+			RowIterator it2 = RowIterator.create(resultSet2, row);
 
-			while (hasNext1 && hasNext2) {
+			while (it1.hasRow() && it2.hasRow()) {
 				switch (comparator.compare(resultSet1, resultSet2)) {
 				case LESS:
-					System.out.println("> " + resultSet1.getObject(1));
+					System.out.println("> " + it1.getRowString());
 
-					hasNext1 = resultSet1.next();
+					it1.next();
 					break;
 
 				case EQUALS:
-					hasNext1 = resultSet1.next();
-					hasNext2 = resultSet2.next();
+					it1.next();
+					it2.next();
 					break;
 
 				case GREATER:
-					System.out.println("< " + resultSet2.getObject(1));
+					System.out.println("< " + it2.getRowString());
 
-					hasNext2 = resultSet2.next();
+					it2.next();
 					break;
 				}
 			}
 
 			// Show remaining row from first result set
-			while (hasNext1) {
-				System.out.println("> " + resultSet1.getObject(1));
+			while (it1.hasRow()) {
+				System.out.println("> " + it1.getRowString());
 
-				hasNext1 = resultSet1.next();
+				it1.next();
 			}
 
 			// Show remaining row from second result set
-			while (hasNext2) {
-				System.out.println("< " + resultSet2.getObject(1));
+			while (it2.hasRow()) {
+				System.out.println("< " + it2.getRowString());
 
-				hasNext2 = resultSet2.next();
+				it2.next();
 			}
 		} catch (SQLException e) {
 			throw new QueryExecutionException(e);
