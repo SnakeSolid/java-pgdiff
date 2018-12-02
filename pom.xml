@@ -13,12 +13,15 @@
 
 		<logback.version>1.0.13</logback.version>
 		<commons-cli.version>1.4</commons-cli.version>
+		<postgresql.version>42.2.5</postgresql.version>
 		<jtoml.version>2.0.0</jtoml.version>
+		<jupiter.version>5.3.2</jupiter.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 
+		<maven.surefire.plugin.version>2.22.0</maven.surefire.plugin.version>
 		<maven.assembly.plugin.version>3.1.0</maven.assembly.plugin.version>
 	</properties>
 
@@ -36,15 +39,44 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>${postgresql.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>io.ous</groupId>
 			<artifactId>jtoml</artifactId>
 			<version>${jtoml.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${jupiter.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.plugin.version}</version>
+
+					<configuration>
+						<useSystemClassLoader>false</useSystemClassLoader>
+					</configuration>
+				</plugin>
+
 				<plugin>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>${maven.assembly.plugin.version}</version>

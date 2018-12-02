@@ -121,8 +121,10 @@ public class OptionsParser {
 	 *             if required parameters missed
 	 * @throws CliOptionsParseException
 	 *             if command line option are invalid
+	 * @throws InvalidPortException
+	 *             if port number invalid
 	 */
-	public CliOptions getOptions() throws NoParameterException, CliOptionsParseException {
+	public CliOptions getOptions() throws NoParameterException, CliOptionsParseException, InvalidPortException {
 		CommandLine commandLine;
 
 		try {
@@ -139,8 +141,8 @@ public class OptionsParser {
 				"Value for password2 must be set");
 		String host1 = getDefaultOption(commandLine, SOPT_HOST1, ENV_HOST1, DEFAULT_HOST);
 		String host2 = getDefaultOption(commandLine, SOPT_HOST2, ENV_HOST2, DEFAULT_HOST);
-		String port1 = getDefaultOption(commandLine, SOPT_PORT1, ENV_PORT1, DEFAULT_PORT);
-		String port2 = getDefaultOption(commandLine, SOPT_PORT2, ENV_PORT2, DEFAULT_PORT);
+		short port1 = toShort(getDefaultOption(commandLine, SOPT_PORT1, ENV_PORT1, DEFAULT_PORT));
+		short port2 = toShort(getDefaultOption(commandLine, SOPT_PORT2, ENV_PORT2, DEFAULT_PORT));
 		String dbname1 = getRequiredOption(commandLine, SOPT_DBNAME1, ENV_DBNAME1, "Value for dbname1 must be set");
 		String dbname2 = getRequiredOption(commandLine, SOPT_DBNAME2, ENV_DBNAME2, "Value for dbname2 must be set");
 		List<String> tableNames = commandLine.getArgList();
@@ -155,11 +157,29 @@ public class OptionsParser {
 				.setHost2(host2)
 				.setPort1(port1)
 				.setPort2(port2)
-				.setDbname1(dbname1)
-				.setDbname2(dbname2)
+				.setDbName1(dbname1)
+				.setDbName2(dbname2)
 				.setConfigFile(configFile)
 				.setTableNames(tableNames)
 				.build();
+	}
+
+	/**
+	 * Try to parse short value from string. If string contains invalid value
+	 * throws exception.
+	 *
+	 * @param value
+	 *            value
+	 * @return parsed short
+	 * @throws InvalidPortException
+	 *             if values contains invalid short
+	 */
+	private short toShort(String value) throws InvalidPortException {
+		try {
+			return Short.parseShort(value);
+		} catch (NumberFormatException e) {
+			throw new InvalidPortException(value, e);
+		}
 	}
 
 	/**

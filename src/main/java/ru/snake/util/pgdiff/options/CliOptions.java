@@ -23,20 +23,20 @@ public class CliOptions {
 
 	private final String host2;
 
-	private final String port1;
+	private final short port1;
 
-	private final String port2;
+	private final short port2;
 
-	private final String dbname1;
+	private final String dbName1;
 
-	private final String dbname2;
+	private final String dbName2;
 
 	private final File configFile;
 
 	private final List<String> tableNames;
 
 	private CliOptions(String user1, String user2, String password1, String password2, String host1, String host2,
-			String port1, String port2, String dbname1, String dbname2, File configFile, List<String> tableNames) {
+			short port1, short port2, String dbName1, String dbName2, File configFile, List<String> tableNames) {
 		super();
 		this.user1 = user1;
 		this.user2 = user2;
@@ -46,8 +46,8 @@ public class CliOptions {
 		this.host2 = host2;
 		this.port1 = port1;
 		this.port2 = port2;
-		this.dbname1 = dbname1;
-		this.dbname2 = dbname2;
+		this.dbName1 = dbName1;
+		this.dbName2 = dbName2;
 		this.configFile = configFile;
 		this.tableNames = tableNames;
 	}
@@ -111,7 +111,7 @@ public class CliOptions {
 	 *
 	 * @return port1 value
 	 */
-	public String getPort1() {
+	public short getPort1() {
 		return port1;
 	}
 
@@ -120,26 +120,26 @@ public class CliOptions {
 	 *
 	 * @return port2 value
 	 */
-	public String getPort2() {
+	public short getPort2() {
 		return port2;
 	}
 
 	/**
-	 * Returns dbname1 option value.
+	 * Returns dbName1 option value.
 	 *
-	 * @return dbname1 value
+	 * @return dbName1 value
 	 */
-	public String getDbname1() {
-		return dbname1;
+	public String getDbName1() {
+		return dbName1;
 	}
 
 	/**
-	 * Returns dbname2 option value.
+	 * Returns dbName2 option value.
 	 *
-	 * @return dbname2 value
+	 * @return dbName2 value
 	 */
-	public String getDbname2() {
-		return dbname2;
+	public String getDbName2() {
+		return dbName2;
 	}
 
 	/**
@@ -164,7 +164,7 @@ public class CliOptions {
 	public String toString() {
 		return "CliOptions [user1=" + user1 + ", user2=" + user2 + ", password1=" + password1 + ", password2="
 				+ password2 + ", host1=" + host1 + ", host2=" + host2 + ", port1=" + port1 + ", port2=" + port2
-				+ ", dbname1=" + dbname1 + ", dbname2=" + dbname2 + ", configFile=" + configFile + ", tableNames="
+				+ ", dbName1=" + dbName1 + ", dbName2=" + dbName2 + ", configFile=" + configFile + ", tableNames="
 				+ tableNames + "]";
 	}
 
@@ -188,13 +188,13 @@ public class CliOptions {
 
 		private String host2;
 
-		private String port1;
+		private short port1;
 
-		private String port2;
+		private short port2;
 
-		private String dbname1;
+		private String dbName1;
 
-		private String dbname2;
+		private String dbName2;
 
 		private File configFile;
 
@@ -291,7 +291,7 @@ public class CliOptions {
 		 *            port1 value
 		 * @return this builder
 		 */
-		public Builder setPort1(String port1) {
+		public Builder setPort1(short port1) {
 			this.port1 = port1;
 
 			return this;
@@ -304,34 +304,34 @@ public class CliOptions {
 		 *            port2 value
 		 * @return this builder
 		 */
-		public Builder setPort2(String port2) {
+		public Builder setPort2(short port2) {
 			this.port2 = port2;
 
 			return this;
 		}
 
 		/**
-		 * Set dbname1 value. Returns this builder.
+		 * Set dbName1 value. Returns this builder.
 		 *
-		 * @param dbname1
-		 *            dbname1 value
+		 * @param dbName1
+		 *            dbName1 value
 		 * @return this builder
 		 */
-		public Builder setDbname1(String dbname1) {
-			this.dbname1 = dbname1;
+		public Builder setDbName1(String dbName1) {
+			this.dbName1 = dbName1;
 
 			return this;
 		}
 
 		/**
-		 * Set dbname2 value. Returns this builder.
+		 * Set dbName2 value. Returns this builder.
 		 *
-		 * @param dbname2
-		 *            dbname2 value
+		 * @param dbName2
+		 *            dbName2 value
 		 * @return this builder
 		 */
-		public Builder setDbname2(String dbname2) {
-			this.dbname2 = dbname2;
+		public Builder setDbName2(String dbName2) {
+			this.dbName2 = dbName2;
 
 			return this;
 		}
@@ -368,7 +368,7 @@ public class CliOptions {
 		 * @return new options
 		 */
 		public CliOptions build() {
-			return new CliOptions(user1, user2, password1, password2, host1, host2, port1, port2, dbname1, dbname2,
+			return new CliOptions(user1, user2, password1, password2, host1, host2, port1, port2, dbName1, dbName2,
 					configFile, tableNames);
 		}
 
@@ -376,7 +376,7 @@ public class CliOptions {
 		public String toString() {
 			return "Builder [user1=" + user1 + ", user2=" + user2 + ", password1=" + password1 + ", password2="
 					+ password2 + ", host1=" + host1 + ", host2=" + host2 + ", port1=" + port1 + ", port2=" + port2
-					+ ", dbname1=" + dbname1 + ", dbname2=" + dbname2 + ", configFile=" + configFile + ", tableNames="
+					+ ", dbName1=" + dbName1 + ", dbName2=" + dbName2 + ", configFile=" + configFile + ", tableNames="
 					+ tableNames + "]";
 		}
 
