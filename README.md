@@ -44,16 +44,17 @@ Both ways to set connection parameters can be combined. List of table names can 
 
 Supported command-line options:
 
- * `-U`, `--user1` - first PostgreSQL user;
- * `-u`, `--user2` - second PostgreSQL user;
- * `-W`, `--password1` - first password;
- * `-w`, `--password2` - second password;
- * `-H`, `--host1` - first server name (default value is localhost);
- * `-h`, `--host2` - second server name (default value is localhost);
- * `-P`, `--port1` - first server port number (default value is 5432);
- * `-p`, `--port2` - second server port number (default value is 5432);
- * `-D`, `--dbname1` - first database name;
- * `-d`, `--dbname2` - second database name;
+ * `-u`, `--user1` - first PostgreSQL user;
+ * `-U`, `--user2` - second PostgreSQL user;
+ * `-w`, `--password1` - first password;
+ * `-W`, `--password2` - second password;
+ * `-h`, `--host1` - first server name (default value is localhost);
+ * `-H`, `--host2` - second server name (default value is localhost);
+ * `-p`, `--port1` - first server port number (default value is 5432);
+ * `-P`, `--port2` - second server port number (default value is 5432);
+ * `-d`, `--dbname1` - first database name;
+ * `-D`, `--dbname2` - second database name;
+ * `-c`, `--config` - path to configuration file.
  * `-h`, `--help` - show help and exit.
 
 Supported environment variables:
