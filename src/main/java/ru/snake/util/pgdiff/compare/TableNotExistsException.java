@@ -42,7 +42,16 @@ public class TableNotExistsException extends Exception {
 	}
 
 	/**
-	 * Returns full table name.
+	 * Returns schema name.
+	 *
+	 * @return schema name
+	 */
+	public String getSchemaName() {
+		return tableSchema;
+	}
+
+	/**
+	 * Returns table name.
 	 *
 	 * @return table name
 	 */

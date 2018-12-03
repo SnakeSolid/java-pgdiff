@@ -103,8 +103,8 @@ public class Main {
 				try {
 					comparator.compare();
 				} catch (TableNotExistsException e) {
-					System.err.println(String.format("Table %s does not exists in database %s", e.getTableName(),
-							e.getDatabaseName()));
+					System.err.println(String.format("Table %s.%s does not exists in database %s", e.getSchemaName(),
+							e.getTableName(), e.getDatabaseName()));
 				} catch (QueryExecutionException | DifferentSchemaException e) {
 					System.err.println(String.format("Failed to compare tables %s and %s: %s", table.getTableName1(),
 							table.getTableName2(), e.getMessage()));

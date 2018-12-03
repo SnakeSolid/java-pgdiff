@@ -89,6 +89,24 @@ public class RowDescriptor {
 			throw new RuntimeException(e);
 		}
 
+		boolean tableExists = false;
+
+		try (PreparedStatement statement = connection.prepareStatement(QueryBuilder.tableExitstQuery())) {
+			statement.setString(1, databaseName);
+			statement.setString(2, tableSchema);
+			statement.setString(3, tableName);
+
+			try (ResultSet resultSet = statement.executeQuery()) {
+				tableExists = resultSet.next();
+			}
+		} catch (SQLException e) {
+			throw new QueryExecutionException(e);
+		}
+
+		if (!tableExists) {
+			throw new TableNotExistsException(databaseName, tableSchema, tableName);
+		}
+
 		String queryString = QueryBuilder.tableColumnsQuery();
 		List<ColumnDescriptor> columns = new ArrayList<>();
 
@@ -110,10 +128,6 @@ public class RowDescriptor {
 			}
 		} catch (SQLException e) {
 			throw new QueryExecutionException(e);
-		}
-
-		if (columns.isEmpty()) {
-			throw new TableNotExistsException(databaseName, tableSchema, tableName);
 		}
 
 		return new RowDescriptor(columns);

@@ -20,6 +20,31 @@ public class QueryBuilder {
 	private static final Logger LOG = LoggerFactory.getLogger(QueryBuilder.class);
 
 	/**
+	 * Build query returning single row with the same database name, schema name
+	 * and table name as in parameters only if table is present in database.
+	 * Otherwise this query returns zero rows. Query has three parameters:
+	 *
+	 * <ol>
+	 * <li>database name;</li>
+	 * <li>table schema name;</li>
+	 * <li>table name.</li>
+	 * </ol>
+	 *
+	 * Result set will contain three columns:
+	 *
+	 * <ol>
+	 * <li>(table_catalog) database name;</li>
+	 * <li>(table_schema) schema name;</li>
+	 * <li>(is_nullable) nullable flag, contains string YES or NO.</li>
+	 * </ol>
+	 *
+	 * @return query string
+	 */
+	public static String tableExitstQuery() {
+		return readQueryResource("ru/snake/util/pgdiff/query/tableExistsQuery.sql");
+	}
+
+	/**
 	 * Build query returning all columns of given table. Query has three
 	 * parameters:
 	 *
