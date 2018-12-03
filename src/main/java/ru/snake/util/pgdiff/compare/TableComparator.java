@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import ru.snake.util.pgdiff.comparator.ComparatorFactory;
 import ru.snake.util.pgdiff.comparator.ResultSetComparator;
+import ru.snake.util.pgdiff.config.Configuration;
 import ru.snake.util.pgdiff.query.QueryBuilder;
 
 /**
@@ -24,11 +25,9 @@ public class TableComparator {
 
 	private final Connection connection2;
 
-	private final String tableName1;
+	private final Configuration config;
 
-	private final String tableName2;
-
-	private final String options;
+	private final TableNames tables;
 
 	/**
 	 * Create new instance of table comparator.
@@ -37,15 +36,16 @@ public class TableComparator {
 	 *            first connection
 	 * @param connection2
 	 *            second connection
+	 * @param config
+	 *            configuration
 	 * @param table
-	 *            table description
+	 *            tables description
 	 */
-	public TableComparator(Connection connection1, Connection connection2, TableName table) {
+	public TableComparator(Connection connection1, Connection connection2, Configuration config, TableNames table) {
 		this.connection1 = connection1;
 		this.connection2 = connection2;
-		this.tableName1 = table.getTableName1();
-		this.tableName2 = table.getTableName2();
-		this.options = table.getOptions();
+		this.config = config;
+		this.tables = table;
 	}
 
 	/**
@@ -59,16 +59,20 @@ public class TableComparator {
 	 *             if schema of two tables are different
 	 */
 	public void compare() throws TableNotExistsException, QueryExecutionException, DifferentSchemaException {
-		RowDescriptor row = RowDescriptor.fromTable(this.connection1, this.tableName1);
-		RowDescriptor otherRow = RowDescriptor.fromTable(this.connection2, this.tableName2);
+		RowDescriptor row = RowDescriptor.fromTable(this.connection1, this.tables.getSchemaName1(),
+				this.tables.getTableName1());
+		RowDescriptor otherRow = RowDescriptor.fromTable(this.connection2, this.tables.getSchemaName2(),
+				this.tables.getTableName2());
 
 		if (!row.equals(otherRow)) {
-			throw new DifferentSchemaException(this.tableName1, this.tableName2);
+			throw new DifferentSchemaException(this.tables.getFullTableName1(), this.tables.getFullTableName2());
 		}
 
 		ResultSetComparator comparator = ComparatorFactory.createRowComparator(row);
-		String queryString1 = QueryBuilder.orderedDatasetQuery(this.tableName1, row);
-		String queryString2 = QueryBuilder.orderedDatasetQuery(this.tableName2, row);
+		String queryString1 = QueryBuilder.orderedDatasetQuery(this.tables.getSchemaName1(),
+				this.tables.getTableName1(), row);
+		String queryString2 = QueryBuilder.orderedDatasetQuery(this.tables.getSchemaName2(),
+				this.tables.getTableName2(), row);
 
 		try (PreparedStatement statement1 = this.connection1.prepareStatement(queryString1);
 				PreparedStatement statement2 = this.connection2.prepareStatement(queryString2);
@@ -118,8 +122,8 @@ public class TableComparator {
 
 	@Override
 	public String toString() {
-		return "TableComparator [connection1=" + connection1 + ", connection2=" + connection2 + ", tableName1="
-				+ tableName1 + ", tableName2=" + tableName2 + ", options=" + options + "]";
+		return "TableComparator [connection1=" + connection1 + ", connection2=" + connection2 + ", config=" + config
+				+ ", table=" + tables + "]";
 	}
 
 }

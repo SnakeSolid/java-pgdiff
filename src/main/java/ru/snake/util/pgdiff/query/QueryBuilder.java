@@ -71,13 +71,15 @@ public class QueryBuilder {
 	/**
 	 * Create select query returning ordered data-set from the table.
 	 *
+	 * @param schemaName
+	 *            schema name
 	 * @param tableName
 	 *            table name
 	 * @param row
 	 *            row structure
 	 * @return query string without parameters
 	 */
-	public static String orderedDatasetQuery(String tableName, RowDescriptor row) {
+	public static String orderedDatasetQuery(String schemaName, String tableName, RowDescriptor row) {
 		// TODO: Move query generation to template.
 
 		StringBuilder builder = new StringBuilder();
@@ -98,9 +100,9 @@ public class QueryBuilder {
 		}
 
 		builder.append(" FROM \"");
-		builder.append(getTableSchema(tableName, "public"));
+		builder.append(schemaName);
 		builder.append("\".\"");
-		builder.append(getTableName(tableName));
+		builder.append(tableName);
 		builder.append('"');
 		builder.append(" ORDER BY ");
 
@@ -123,26 +125,6 @@ public class QueryBuilder {
 		}
 
 		return builder.toString();
-	}
-
-	private static String getTableName(String fullTableName) {
-		int dotIndex = fullTableName.indexOf('.');
-
-		if (dotIndex != -1) {
-			return fullTableName.substring(dotIndex + 1);
-		}
-
-		return fullTableName;
-	}
-
-	private static String getTableSchema(String fullTableName, String defalutSchema) {
-		int dotIndex = fullTableName.indexOf('.');
-
-		if (dotIndex != -1) {
-			return fullTableName.substring(0, dotIndex);
-		}
-
-		return defalutSchema;
 	}
 
 }

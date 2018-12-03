@@ -13,7 +13,7 @@ import org.postgresql.ds.PGSimpleDataSource;
 import ru.snake.util.pgdiff.compare.DifferentSchemaException;
 import ru.snake.util.pgdiff.compare.QueryExecutionException;
 import ru.snake.util.pgdiff.compare.TableComparator;
-import ru.snake.util.pgdiff.compare.TableName;
+import ru.snake.util.pgdiff.compare.TableNames;
 import ru.snake.util.pgdiff.compare.TableNotExistsException;
 import ru.snake.util.pgdiff.config.ConfigNotFoundException;
 import ru.snake.util.pgdiff.config.Configuration;
@@ -94,8 +94,8 @@ public class Main {
 		try (Connection connection1 = dataSource1.getConnection();
 				Connection connection2 = dataSource2.getConnection()) {
 			for (String tableName : options.getTableNames()) {
-				TableName table = new TableName(tableName);
-				TableComparator comparator = new TableComparator(connection1, connection2, table);
+				TableNames table = TableNames.fromString(tableName);
+				TableComparator comparator = new TableComparator(connection1, connection2, config, table);
 
 				System.out.println(
 						String.format("Comparing tables %s and %s...", table.getTableName1(), table.getTableName2()));

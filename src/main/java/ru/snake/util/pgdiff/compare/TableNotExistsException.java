@@ -12,6 +12,8 @@ public class TableNotExistsException extends Exception {
 
 	private final String databaseName;
 
+	private final String tableSchema;
+
 	private final String tableName;
 
 	/**
@@ -19,11 +21,14 @@ public class TableNotExistsException extends Exception {
 	 *
 	 * @param databaseName
 	 *            database name
+	 * @param tableSchema
+	 *            schema name
 	 * @param tableName
 	 *            table name
 	 */
-	public TableNotExistsException(String databaseName, String tableName) {
+	public TableNotExistsException(String databaseName, String tableSchema, String tableName) {
 		this.databaseName = databaseName;
+		this.tableSchema = tableSchema;
 		this.tableName = tableName;
 	}
 
@@ -47,12 +52,14 @@ public class TableNotExistsException extends Exception {
 
 	@Override
 	public String getMessage() {
-		return String.format("Table %s does not exists in database %s", this.getStackTrace(), this.databaseName);
+		return String.format("Table %s.%s does not exists in database %s", this.tableSchema, this.tableName,
+				this.databaseName);
 	}
 
 	@Override
 	public String toString() {
-		return "TableNotExistsException [databaseName=" + databaseName + ", tableName=" + tableName + "]";
+		return "TableNotExistsException [databaseName=" + databaseName + ", tableSchema=" + tableSchema + ", tableName="
+				+ tableName + "]";
 	}
 
 }

@@ -68,15 +68,17 @@ public class RowDescriptor {
 	 *
 	 * @param connection
 	 *            connection
-	 * @param fullTableName
-	 *            full table name
+	 * @param tableSchema
+	 *            schema name
+	 * @param tableName
+	 *            table name
 	 * @return row descriptor
 	 * @throws TableNotExistsException
 	 *             if table not found or has no columns
 	 * @throws QueryExecutionException
 	 *             if error occurred during query execution
 	 */
-	public static RowDescriptor fromTable(Connection connection, String fullTableName)
+	public static RowDescriptor fromTable(Connection connection, String tableSchema, String tableName)
 			throws TableNotExistsException, QueryExecutionException {
 		String databaseName;
 
@@ -88,8 +90,6 @@ public class RowDescriptor {
 		}
 
 		String queryString = QueryBuilder.tableColumnsQuery();
-		String tableSchema = getTableSchema(fullTableName, "public");
-		String tableName = getTableName(fullTableName);
 		List<ColumnDescriptor> columns = new ArrayList<>();
 
 		try (PreparedStatement statement = connection.prepareStatement(queryString)) {
@@ -113,30 +113,10 @@ public class RowDescriptor {
 		}
 
 		if (columns.isEmpty()) {
-			throw new TableNotExistsException(databaseName, fullTableName);
+			throw new TableNotExistsException(databaseName, tableSchema, tableName);
 		}
 
 		return new RowDescriptor(columns);
-	}
-
-	private static String getTableName(String fullTableName) {
-		int dotIndex = fullTableName.indexOf('.');
-
-		if (dotIndex != -1) {
-			return fullTableName.substring(dotIndex + 1);
-		}
-
-		return fullTableName;
-	}
-
-	private static String getTableSchema(String fullTableName, String defalutSchema) {
-		int dotIndex = fullTableName.indexOf('.');
-
-		if (dotIndex != -1) {
-			return fullTableName.substring(0, dotIndex);
-		}
-
-		return defalutSchema;
 	}
 
 }
