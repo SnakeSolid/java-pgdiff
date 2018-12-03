@@ -20,6 +20,28 @@ public class QueryBuilder {
 	private static final Logger LOG = LoggerFactory.getLogger(QueryBuilder.class);
 
 	/**
+	 * Build query returning all column name related to table primary keys.
+	 * Query has three parameters:
+	 *
+	 * <ol>
+	 * <li>database name;</li>
+	 * <li>table schema name;</li>
+	 * <li>table name.</li>
+	 * </ol>
+	 *
+	 * Result set will contain single column:
+	 *
+	 * <ol>
+	 * <li>(column_name) column name;</li>
+	 * </ol>
+	 *
+	 * @return query string
+	 */
+	public static String primaryKeysQuery() {
+		return readQueryResource("ru/snake/util/pgdiff/query/primaryKeysQuery.sql");
+	}
+
+	/**
 	 * Build query returning single row with the same database name, schema name
 	 * and table name as in parameters only if table is present in database.
 	 * Otherwise this query returns zero rows. Query has three parameters:

@@ -5,8 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import ru.snake.util.pgdiff.query.QueryBuilder;
 
@@ -80,37 +82,53 @@ public class RowDescriptor {
 	 */
 	public static RowDescriptor fromTable(Connection connection, String tableSchema, String tableName)
 			throws TableNotExistsException, QueryExecutionException {
-		String databaseName;
+		String databaseName = getDatabaseName(connection);
 
-		try {
-			databaseName = connection.getCatalog();
-		} catch (SQLException e) {
-			// TODO replace with custom exception, this should not happen.
-			throw new RuntimeException(e);
+		checkTableExists(connection, tableSchema, tableName, databaseName);
+
+		List<ColumnDescriptor> columns = getColumnDescriptors(connection, tableSchema, tableName, databaseName);
+		Set<String> keyColumns = getPrimaryKeys(connection, databaseName, tableSchema, tableName);
+
+		// Hide all binary columns.
+		for (ColumnDescriptor column : columns) {
+			ColumnType type = column.getType();
+
+			column.setDisplay(type != ColumnType.BINARY);
 		}
 
-		boolean tableExists = false;
+		// If table contains other fields, exclude from comparing all primary
+		// keys.
+		if (columns.size() > keyColumns.size()) {
+			for (ColumnDescriptor column : columns) {
+				String name = column.getName();
 
-		try (PreparedStatement statement = connection.prepareStatement(QueryBuilder.tableExitstQuery())) {
-			statement.setString(1, databaseName);
-			statement.setString(2, tableSchema);
-			statement.setString(3, tableName);
-
-			try (ResultSet resultSet = statement.executeQuery()) {
-				tableExists = resultSet.next();
+				column.setCompare(keyColumns.contains(name));
 			}
-		} catch (SQLException e) {
-			throw new QueryExecutionException(e);
 		}
 
-		if (!tableExists) {
-			throw new TableNotExistsException(databaseName, tableSchema, tableName);
-		}
+		return new RowDescriptor(columns);
+	}
 
-		String queryString = QueryBuilder.tableColumnsQuery();
+	/**
+	 * Returns column descriptors for all columns of given table primary key.
+	 *
+	 * @param connection
+	 *            connection
+	 * @param databaseName
+	 *            database name
+	 * @param tableSchema
+	 *            schema name
+	 * @param tableName
+	 *            table name
+	 * @return set of column names
+	 * @throws QueryExecutionException
+	 *             if error occurred during query execution
+	 */
+	private static List<ColumnDescriptor> getColumnDescriptors(Connection connection, String tableSchema,
+			String tableName, String databaseName) throws QueryExecutionException {
 		List<ColumnDescriptor> columns = new ArrayList<>();
 
-		try (PreparedStatement statement = connection.prepareStatement(queryString)) {
+		try (PreparedStatement statement = connection.prepareStatement(QueryBuilder.tableColumnsQuery())) {
 			statement.setString(1, databaseName);
 			statement.setString(2, tableSchema);
 			statement.setString(3, tableName);
@@ -130,7 +148,86 @@ public class RowDescriptor {
 			throw new QueryExecutionException(e);
 		}
 
-		return new RowDescriptor(columns);
+		return columns;
+	}
+
+	/**
+	 * Returns set of all column name related to table primary key.
+	 *
+	 * @param connection
+	 *            connection
+	 * @param databaseName
+	 *            database name
+	 * @param tableSchema
+	 *            schema name
+	 * @param tableName
+	 *            table name
+	 * @return set of column names
+	 * @throws QueryExecutionException
+	 *             if error occurred during query execution
+	 */
+	private static Set<String> getPrimaryKeys(Connection connection, String databaseName, String tableSchema,
+			String tableName) throws QueryExecutionException {
+		Set<String> columns = new HashSet<>();
+
+		try (PreparedStatement statement = connection.prepareStatement(QueryBuilder.tableColumnsQuery())) {
+			statement.setString(1, databaseName);
+			statement.setString(2, tableSchema);
+			statement.setString(3, tableName);
+
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					String columnName = resultSet.getString(1);
+
+					columns.add(columnName);
+				}
+			}
+		} catch (SQLException e) {
+			throw new QueryExecutionException(e);
+		}
+
+		return columns;
+	}
+
+	private static void checkTableExists(Connection connection, String tableSchema, String tableName,
+			String databaseName) throws QueryExecutionException, TableNotExistsException {
+		boolean tableExists = false;
+
+		try (PreparedStatement statement = connection.prepareStatement(QueryBuilder.tableExitstQuery())) {
+			statement.setString(1, databaseName);
+			statement.setString(2, tableSchema);
+			statement.setString(3, tableName);
+
+			try (ResultSet resultSet = statement.executeQuery()) {
+				tableExists = resultSet.next();
+			}
+		} catch (SQLException e) {
+			throw new QueryExecutionException(e);
+		}
+
+		if (!tableExists) {
+			throw new TableNotExistsException(databaseName, tableSchema, tableName);
+		}
+	}
+
+	/**
+	 * Returns current connection database name.
+	 *
+	 * @param connection
+	 *            connection
+	 * @return database name
+	 */
+	private static String getDatabaseName(Connection connection) {
+		String databaseName;
+
+		try {
+			databaseName = connection.getCatalog();
+		} catch (SQLException e) {
+			// TODO replace with custom exception, this should not happen.
+			throw new RuntimeException(e);
+		}
+
+		return databaseName;
 	}
 
 }

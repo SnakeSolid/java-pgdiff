@@ -11,6 +11,12 @@ import ru.snake.util.pgdiff.format.StaticFormatter;
 import ru.snake.util.pgdiff.format.StringFormatter;
 import ru.snake.util.pgdiff.format.ValueFormatter;
 
+/**
+ * Wrapper over {@link ResultSet} to provide iteration and display methods.
+ *
+ * @author snake
+ *
+ */
 public class RowIterator {
 
 	private final ResultSet resultSet;
@@ -54,7 +60,6 @@ public class RowIterator {
 	public String getRowString() throws SQLException {
 		StringBuilder builder = new StringBuilder();
 		boolean isFirst = true;
-		int index = 1;
 
 		for (ValueFormatter formatter : this.formatters) {
 			if (isFirst) {
@@ -64,8 +69,6 @@ public class RowIterator {
 			}
 
 			builder.append(formatter.format(this.resultSet));
-
-			index += 1;
 		}
 
 		return builder.toString();
@@ -90,35 +93,50 @@ public class RowIterator {
 		int index = 1;
 
 		for (ColumnDescriptor column : row.getColumns()) {
-			ColumnType columnType = column.getType();
-
-			switch (columnType) {
-			case INT8:
-			case INT16:
-			case INT32:
-			case INT64:
-			case FLOAT32:
-			case FLOAT64:
-			case DECIMAL:
-				formatters.add(new NumberFormatter(index));
-				break;
-
-			case STRING:
-				formatters.add(new StringFormatter(index));
-				break;
-
-			case BINARY:
-				formatters.add(new BinaryFormatter(index));
-				break;
-
-			case UNSUPPORTED:
-				formatters.add(new StaticFormatter("---"));
-				break;
+			if (column.isDisplay()) {
+				formatters.add(createFormatter(column, index));
 			}
+
 			index += 1;
 		}
 
 		return new RowIterator(resultSet, formatters, hasRow);
+	}
+
+	/**
+	 * Create new formatter for this column.
+	 *
+	 * @param column
+	 *            column descriptor
+	 * @param index
+	 *            column index
+	 * @return column formatter
+	 */
+	private static ValueFormatter createFormatter(ColumnDescriptor column, int index) {
+		ColumnType columnType = column.getType();
+
+		switch (columnType) {
+		case INT8:
+		case INT16:
+		case INT32:
+		case INT64:
+		case FLOAT32:
+		case FLOAT64:
+		case DECIMAL:
+			return new NumberFormatter(index);
+
+		case STRING:
+			return new StringFormatter(index);
+
+		case BINARY:
+			return new BinaryFormatter(index);
+
+		case UNSUPPORTED:
+			return new StaticFormatter("---");
+
+		default:
+			throw new RuntimeException("Columjn type has no corresponding formatter");
+		}
 	}
 
 	@Override
