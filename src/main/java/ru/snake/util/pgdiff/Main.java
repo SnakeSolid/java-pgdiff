@@ -15,6 +15,10 @@ import ru.snake.util.pgdiff.compare.QueryExecutionException;
 import ru.snake.util.pgdiff.compare.TableComparator;
 import ru.snake.util.pgdiff.compare.TableName;
 import ru.snake.util.pgdiff.compare.TableNotExistsException;
+import ru.snake.util.pgdiff.config.ConfigNotFoundException;
+import ru.snake.util.pgdiff.config.Configuration;
+import ru.snake.util.pgdiff.config.ConfigurationReader;
+import ru.snake.util.pgdiff.config.ReadConfigException;
 import ru.snake.util.pgdiff.options.CliOptions;
 import ru.snake.util.pgdiff.options.CliOptionsParseException;
 import ru.snake.util.pgdiff.options.InvalidPortException;
@@ -68,6 +72,18 @@ public class Main {
 			System.err.println("No tables to compare.");
 
 			return EXIT_CONFIGURATIN_ERROR;
+		}
+
+		Configuration config = new Configuration();
+
+		if (options.getConfigFile() != null) {
+			try {
+				config = ConfigurationReader.read(options.getConfigFile());
+			} catch (ConfigNotFoundException | ReadConfigException e) {
+				System.err.println(e.getMessage());
+
+				return EXIT_CONFIGURATIN_ERROR;
+			}
 		}
 
 		DataSource dataSource1 = createDatasource(options::getUser1, options::getPassword1, options::getHost1,

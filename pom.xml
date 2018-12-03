@@ -14,7 +14,7 @@
 		<logback.version>1.0.13</logback.version>
 		<commons-cli.version>1.4</commons-cli.version>
 		<postgresql.version>42.2.5</postgresql.version>
-		<jtoml.version>2.0.0</jtoml.version>
+		<yamlbeans.version>1.13</yamlbeans.version>
 		<jupiter.version>5.3.2</jupiter.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -45,9 +45,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>io.ous</groupId>
-			<artifactId>jtoml</artifactId>
-			<version>${jtoml.version}</version>
+			<groupId>com.esotericsoftware.yamlbeans</groupId>
+			<artifactId>yamlbeans</artifactId>
+			<version>${yamlbeans.version}</version>
 		</dependency>
 
 		<dependency>
