@@ -1,6 +1,6 @@
 # PG Diff
 
-Command line utility to compare PostgreSQL tables row by row.
+Command-line utility to compare PostgreSQL tables row by row.
 
 ## Usage Example
 
@@ -72,6 +72,40 @@ Supported environment variables:
 
 Command-line options have priority over environment variables. Default values used only if environment variable and
 command-line option are empty.
+
+## Configuration
+
+Configuration file can be set using `-c` or `--config` command-line options. Configuration file can override default
+behavior for display and compare table fields.
+
+Configuration file example:
+
+```yaml
+---
+tables:
+  my_schema.good_table: # this settings will be used only for table my_schema.good_table.
+    display: # these fields will be shown in diff output.
+      - id
+      - name
+      - description
+    compare: # these fields will be used to compare different table rows.
+      - name
+      - description
+      - index
+      - is_enabled
+
+  small_table: # this settings will be used for table small_table in any schema.
+    display:
+      - id
+      - name
+    compare:
+      - name
+      - index
+```
+
+Display fields by default contains all columns except for binary.
+
+Compare fields by default contains all columns except for primary key.
 
 ## Build From Source
 
