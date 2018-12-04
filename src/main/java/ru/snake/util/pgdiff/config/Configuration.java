@@ -36,12 +36,25 @@ public class Configuration {
 	 * Returns table configuration for given table name. If table was not
 	 * configured returns null.
 	 *
-	 * @param fullTableName
-	 *            full table name
+	 * First try to find configuration for full table name (schema dot table).
+	 * If configuration not found tries to find configuration for table name
+	 * only.
+	 *
+	 * @param schemaName
+	 *            schema name
+	 * @param tableName
+	 *            table name
 	 * @return table configuration
 	 */
-	public TableConfig getTableConfig(String fullTableName) {
-		return tables.get(fullTableName);
+	public TableConfig getTableConfig(String schemaName, String tableName) {
+		String fullTableName = schemaName + "." + tableName;
+		TableConfig result = this.tables.get(fullTableName);
+
+		if (result != null) {
+			return result;
+		}
+
+		return this.tables.get(tableName);
 	}
 
 	@Override

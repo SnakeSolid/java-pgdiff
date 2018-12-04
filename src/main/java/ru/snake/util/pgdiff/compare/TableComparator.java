@@ -4,10 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
 import ru.snake.util.pgdiff.comparator.ComparatorFactory;
 import ru.snake.util.pgdiff.comparator.ResultSetComparator;
 import ru.snake.util.pgdiff.config.Configuration;
+import ru.snake.util.pgdiff.config.TableConfig;
 import ru.snake.util.pgdiff.query.QueryBuilder;
 
 /**
@@ -59,9 +61,9 @@ public class TableComparator {
 	 *             if schema of two tables are different
 	 */
 	public void compare() throws TableNotExistsException, QueryExecutionException, DifferentSchemaException {
-		RowDescriptor leftRow = RowDescriptor.fromTable(this.connection1, this.tables.getSchemaName1(),
+		RowDescriptor leftRow = createRowDescriptor(this.connection1, this.tables.getSchemaName1(),
 				this.tables.getTableName1());
-		RowDescriptor rightRow = RowDescriptor.fromTable(this.connection2, this.tables.getSchemaName2(),
+		RowDescriptor rightRow = createRowDescriptor(this.connection2, this.tables.getSchemaName2(),
 				this.tables.getTableName2());
 
 		if (!leftRow.equalCompare(rightRow)) {
@@ -120,6 +122,26 @@ public class TableComparator {
 		} catch (SQLException e) {
 			throw new QueryExecutionException(e);
 		}
+	}
+
+	private RowDescriptor createRowDescriptor(Connection connection, String schemaName, String tableName)
+			throws TableNotExistsException, QueryExecutionException {
+		RowDescriptor rowDescriptor = RowDescriptor.fromTable(connection, schemaName, tableName);
+		TableConfig tableConfig = config.getTableConfig(schemaName, tableName);
+
+		if (tableConfig != null) {
+			Set<String> displayNames = tableConfig.getDisplay();
+			Set<String> compareNames = tableConfig.getCompare();
+
+			for (ColumnDescriptor column : rowDescriptor.getColumns()) {
+				String name = column.getName();
+
+				column.setDisplay(displayNames.contains(name));
+				column.setCompare(compareNames.contains(name));
+			}
+		}
+
+		return rowDescriptor;
 	}
 
 	@Override

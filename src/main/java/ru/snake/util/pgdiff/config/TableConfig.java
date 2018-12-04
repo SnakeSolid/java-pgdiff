@@ -1,8 +1,8 @@
 package ru.snake.util.pgdiff.config;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Configuration option for single table. Contains two main options - display
@@ -17,34 +17,34 @@ import java.util.List;
  */
 public class TableConfig {
 
-	private List<String> display;
+	private Set<String> display;
 
-	private List<String> compare;
+	private Set<String> compare;
 
 	/**
 	 * Create empty table configuration instance.
 	 */
 	public TableConfig() {
-		this.display = new ArrayList<>();
-		this.compare = new ArrayList<>();
+		this.display = new HashSet<>();
+		this.compare = new HashSet<>();
 	}
 
 	/**
-	 * Returns list of filed names to display for this table.
+	 * Returns set of filed names to display for this table.
 	 *
-	 * @return list of filed names
+	 * @return set of filed names
 	 */
-	public List<String> getDisplay() {
-		return Collections.unmodifiableList(display);
+	public Set<String> getDisplay() {
+		return Collections.unmodifiableSet(display);
 	}
 
 	/**
-	 * Returns list of fields names to compare for this table.
+	 * Returns set of fields names to compare for this table.
 	 *
-	 * @return list of filed names
+	 * @return set of filed names
 	 */
-	public List<String> getCompare() {
-		return Collections.unmodifiableList(compare);
+	public Set<String> getCompare() {
+		return Collections.unmodifiableSet(compare);
 	}
 
 	@Override
