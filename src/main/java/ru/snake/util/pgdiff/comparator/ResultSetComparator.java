@@ -12,9 +12,9 @@ import java.sql.SQLException;
 public interface ResultSetComparator {
 
 	/**
-	 * Compare current rows in both data sets. Returns {@link Ordering#LESS} if
-	 * left data set contains previous row. Returns {@link Ordering#EQUALS} if
-	 * left data set has the same row as right. Returns {@link Ordering#GREATER}
+	 * Compare current rows in both data sets. Returns {@link Ordering#TAKE_LEFT} if
+	 * left data set contains previous row. Returns {@link Ordering#MOVE_NEXT} if
+	 * left data set has the same row as right. Returns {@link Ordering#TAKE_RIGHT}
 	 * if left data set contains next row.
 	 *
 	 * @param lhs

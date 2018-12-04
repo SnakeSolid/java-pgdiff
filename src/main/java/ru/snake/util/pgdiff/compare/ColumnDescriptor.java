@@ -1,7 +1,5 @@
 package ru.snake.util.pgdiff.compare;
 
-import java.util.Objects;
-
 /**
  * Represents single postgreSQL column.
  *
@@ -9,16 +7,12 @@ import java.util.Objects;
  * this class do not use fields {@link ColumnDescriptor#display} and
  * {@link ColumnDescriptor#compare}.
  *
- * Property {@link ColumnDescriptor#display} means that this column will be
- * shown to user in comparison result.
- *
- * Property {@link ColumnDescriptor#compare} means that this column will be used
- * to compare different data-set rows.
- *
  * @author snake
  *
  */
 public class ColumnDescriptor {
+
+	private final int index;
 
 	private final String name;
 
@@ -33,6 +27,8 @@ public class ColumnDescriptor {
 	/**
 	 * Create initialize instance of {@link ColumnDescriptor}.
 	 *
+	 * @param index
+	 *            column index ion result set
 	 * @param name
 	 *            column name
 	 * @param type
@@ -40,13 +36,23 @@ public class ColumnDescriptor {
 	 * @param nullable
 	 *            is column nullable
 	 */
-	public ColumnDescriptor(String name, ColumnType type, boolean nullable) {
+	public ColumnDescriptor(int index, String name, ColumnType type, boolean nullable) {
+		this.index = index;
 		this.name = name;
 		this.type = type;
 		this.nullable = nullable;
 
 		this.display = true;
 		this.compare = true;
+	}
+
+	/**
+	 * Returns actual column index in result set.
+	 *
+	 * @return column index
+	 */
+	public int getIndex() {
+		return index;
 	}
 
 	/**
@@ -116,27 +122,9 @@ public class ColumnDescriptor {
 	}
 
 	@Override
-	public int hashCode() {
-		return Objects.hash(name, nullable, type);
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		} else if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-
-		ColumnDescriptor other = (ColumnDescriptor) obj;
-
-		return Objects.equals(name, other.name) && nullable == other.nullable && type == other.type;
-	}
-
-	@Override
 	public String toString() {
-		return "ColumnDescriptor [name=" + name + ", type=" + type + ", nullable=" + nullable + ", display=" + display
-				+ ", compare=" + compare + "]";
+		return "ColumnDescriptor [index=" + index + ", name=" + name + ", type=" + type + ", nullable=" + nullable
+				+ ", display=" + display + ", compare=" + compare + "]";
 	}
 
 }

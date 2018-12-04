@@ -59,61 +59,63 @@ public class TableComparator {
 	 *             if schema of two tables are different
 	 */
 	public void compare() throws TableNotExistsException, QueryExecutionException, DifferentSchemaException {
-		RowDescriptor row = RowDescriptor.fromTable(this.connection1, this.tables.getSchemaName1(),
+		RowDescriptor leftRow = RowDescriptor.fromTable(this.connection1, this.tables.getSchemaName1(),
 				this.tables.getTableName1());
-		RowDescriptor otherRow = RowDescriptor.fromTable(this.connection2, this.tables.getSchemaName2(),
+		RowDescriptor rightRow = RowDescriptor.fromTable(this.connection2, this.tables.getSchemaName2(),
 				this.tables.getTableName2());
 
-		if (!row.equals(otherRow)) {
+		if (!leftRow.equalCompare(rightRow)) {
 			throw new DifferentSchemaException(this.tables.getFullTableName1(), this.tables.getFullTableName2());
 		}
 
-		ResultSetComparator comparator = ComparatorFactory.createRowComparator(row);
-		String queryString1 = QueryBuilder.orderedDatasetQuery(this.tables.getSchemaName1(),
-				this.tables.getTableName1(), row);
-		String queryString2 = QueryBuilder.orderedDatasetQuery(this.tables.getSchemaName2(),
-				this.tables.getTableName2(), row);
+		// TODO: create comparator valid for both rows, according column
+		// indexes.
+		ResultSetComparator comparator = ComparatorFactory.createRowComparator(leftRow);
+		String leftQueryString = QueryBuilder.orderedDatasetQuery(this.tables.getSchemaName1(),
+				this.tables.getTableName1(), leftRow);
+		String rightQueryString = QueryBuilder.orderedDatasetQuery(this.tables.getSchemaName2(),
+				this.tables.getTableName2(), rightRow);
 
-		try (PreparedStatement statement1 = this.connection1.prepareStatement(queryString1);
-				PreparedStatement statement2 = this.connection2.prepareStatement(queryString2);
-				ResultSet resultSet1 = statement1.executeQuery();
-				ResultSet resultSet2 = statement2.executeQuery();) {
-			RowIterator it1 = RowIterator.create(resultSet1, row);
-			RowIterator it2 = RowIterator.create(resultSet2, row);
+		try (PreparedStatement leftStatement = this.connection1.prepareStatement(leftQueryString);
+				PreparedStatement rightStatement = this.connection2.prepareStatement(rightQueryString);
+				ResultSet leftResultSet = leftStatement.executeQuery();
+				ResultSet rightResultSet = rightStatement.executeQuery();) {
+			RowIterator leftIt = RowIterator.create(leftResultSet, leftRow);
+			RowIterator rightIt = RowIterator.create(rightResultSet, rightRow);
 
-			while (it1.hasRow() && it2.hasRow()) {
-				switch (comparator.compare(resultSet1, resultSet2)) {
-				case LESS:
-					System.out.println("> " + it1.getRowString());
+			while (leftIt.hasRow() && rightIt.hasRow()) {
+				switch (comparator.compare(leftResultSet, rightResultSet)) {
+				case TAKE_LEFT:
+					System.out.println("> " + leftIt.getRowString());
 
-					it1.next();
+					leftIt.next();
 					break;
 
-				case EQUALS:
-					it1.next();
-					it2.next();
+				case MOVE_NEXT:
+					leftIt.next();
+					rightIt.next();
 					break;
 
-				case GREATER:
-					System.out.println("< " + it2.getRowString());
+				case TAKE_RIGHT:
+					System.out.println("< " + rightIt.getRowString());
 
-					it2.next();
+					rightIt.next();
 					break;
 				}
 			}
 
 			// Show remaining row from first result set
-			while (it1.hasRow()) {
-				System.out.println("> " + it1.getRowString());
+			while (leftIt.hasRow()) {
+				System.out.println("> " + leftIt.getRowString());
 
-				it1.next();
+				leftIt.next();
 			}
 
 			// Show remaining row from second result set
-			while (it2.hasRow()) {
-				System.out.println("< " + it2.getRowString());
+			while (rightIt.hasRow()) {
+				System.out.println("< " + rightIt.getRowString());
 
-				it2.next();
+				rightIt.next();
 			}
 		} catch (SQLException e) {
 			throw new QueryExecutionException(e);

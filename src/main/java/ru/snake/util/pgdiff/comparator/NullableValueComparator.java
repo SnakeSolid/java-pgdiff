@@ -33,11 +33,11 @@ public class NullableValueComparator<T> implements ResultSetComparator {
 		boolean rightNull = lhs.wasNull();
 
 		if (leftNull && rightNull) {
-			return Ordering.EQUALS;
+			return Ordering.MOVE_NEXT;
 		} else if (leftNull) {
-			return Ordering.GREATER;
+			return Ordering.TAKE_RIGHT;
 		} else if (rightNull) {
-			return Ordering.LESS;
+			return Ordering.TAKE_LEFT;
 		}
 
 		return Ordering.fromInt(accessor.compare(left, right));

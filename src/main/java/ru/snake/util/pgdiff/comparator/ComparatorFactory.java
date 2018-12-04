@@ -2,6 +2,7 @@ package ru.snake.util.pgdiff.comparator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,61 +11,69 @@ import ru.snake.util.pgdiff.compare.ColumnDescriptor;
 import ru.snake.util.pgdiff.compare.ColumnType;
 import ru.snake.util.pgdiff.compare.RowDescriptor;
 
+/**
+ * Factory of result set comparators.
+ *
+ * @author snake
+ *
+ */
 public class ComparatorFactory {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ComparatorFactory.class);
 
+	/**
+	 * Create new result set comparator for given row descriptor.
+	 *
+	 * @param row
+	 *            row descriptor
+	 * @return result set comparator
+	 */
 	public static ResultSetComparator createRowComparator(RowDescriptor row) {
-		List<ColumnDescriptor> columns = row.getColumns();
+		List<ColumnDescriptor> columns = row.getCompareColumns();
 		List<ResultSetComparator> comparators = new ArrayList<>();
-		int index = 1;
 
 		for (ColumnDescriptor column : columns) {
-			ColumnType columnType = column.getType();
-			boolean nullable = column.isNullable();
-
-			switch (columnType) {
-			case INT8:
-				comparators.add(ComparatorFactory.createInt8Comparator(index, nullable));
-				break;
-
-			case INT16:
-				comparators.add(ComparatorFactory.createInt16Comparator(index, nullable));
-				break;
-
-			case INT32:
-				comparators.add(ComparatorFactory.createInt32Comparator(index, nullable));
-				break;
-
-			case INT64:
-				comparators.add(ComparatorFactory.createInt64Comparator(index, nullable));
-				break;
-
-			case FLOAT32:
-				comparators.add(ComparatorFactory.createFloat32Comparator(index, nullable));
-				break;
-
-			case FLOAT64:
-				comparators.add(ComparatorFactory.createFloat64Comparator(index, nullable));
-				break;
-
-			case STRING:
-				comparators.add(ComparatorFactory.createStringComparator(index, nullable));
-				break;
-
-			case BINARY:
-				comparators.add(ComparatorFactory.createBinaryComparator(index, nullable));
-				break;
-
-			default:
-				LOG.warn("Unsupported column type {}, column {} will be ignored", columnType, column.getName());
-				break;
-			}
-
-			index += 1;
+			createColumnComparator(column).ifPresent(comparators::add);
 		}
 
 		return createChainComparator(comparators);
+	}
+
+	private static Optional<ResultSetComparator> createColumnComparator(ColumnDescriptor column) {
+		int index = column.getIndex();
+		ColumnType columnType = column.getType();
+		boolean nullable = column.isNullable();
+
+		switch (columnType) {
+		case INT8:
+			return Optional.of(ComparatorFactory.createInt8Comparator(index, nullable));
+
+		case INT16:
+			return Optional.of(ComparatorFactory.createInt16Comparator(index, nullable));
+
+		case INT32:
+			return Optional.of(ComparatorFactory.createInt32Comparator(index, nullable));
+
+		case INT64:
+			return Optional.of(ComparatorFactory.createInt64Comparator(index, nullable));
+
+		case FLOAT32:
+			return Optional.of(ComparatorFactory.createFloat32Comparator(index, nullable));
+
+		case FLOAT64:
+			return Optional.of(ComparatorFactory.createFloat64Comparator(index, nullable));
+
+		case STRING:
+			return Optional.of(ComparatorFactory.createStringComparator(index, nullable));
+
+		case BINARY:
+			return Optional.of(ComparatorFactory.createBinaryComparator(index, nullable));
+
+		default:
+			LOG.warn("Unsupported column type {}, column {} will be ignored", columnType, column.getName());
+
+			return Optional.empty();
+		}
 	}
 
 	private static ResultSetComparator createChainComparator(List<ResultSetComparator> comparators) {

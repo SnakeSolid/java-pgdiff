@@ -8,7 +8,7 @@ package ru.snake.util.pgdiff.comparator;
  */
 public enum Ordering {
 
-	LESS, EQUALS, GREATER;
+	TAKE_LEFT, MOVE_NEXT, TAKE_RIGHT;
 
 	/**
 	 * Convert integer, Java comparison result to {@link Ordering}.
@@ -19,11 +19,11 @@ public enum Ordering {
 	 */
 	public static Ordering fromInt(int compare) {
 		if (compare < 0) {
-			return LESS;
+			return TAKE_LEFT;
 		} else if (compare == 0) {
-			return EQUALS;
+			return MOVE_NEXT;
 		} else {
-			return GREATER;
+			return TAKE_RIGHT;
 		}
 	}
 
