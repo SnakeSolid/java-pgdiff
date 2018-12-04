@@ -90,14 +90,8 @@ public class RowIterator {
 		boolean hasRow = resultSet.next();
 		List<ValueFormatter> formatters = new ArrayList<>();
 
-		int index = 1;
-
-		for (ColumnDescriptor column : row.getColumns()) {
-			if (column.isDisplay()) {
-				formatters.add(createFormatter(column, index));
-			}
-
-			index += 1;
+		for (ColumnDescriptor column : row.getDisplayColumns()) {
+			formatters.add(createFormatter(column, column.getIndex()));
 		}
 
 		return new RowIterator(resultSet, formatters, hasRow);

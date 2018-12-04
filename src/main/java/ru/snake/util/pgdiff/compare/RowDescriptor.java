@@ -42,6 +42,23 @@ public class RowDescriptor {
 	}
 
 	/**
+	 * Returns new list of all display columns.
+	 *
+	 * @return display columns
+	 */
+	public List<ColumnDescriptor> getDisplayColumns() {
+		List<ColumnDescriptor> result = new ArrayList<>();
+
+		for (ColumnDescriptor column : this.columns) {
+			if (column.isDisplay()) {
+				result.add(column);
+			}
+		}
+
+		return result;
+	}
+
+	/**
 	 * Returns new list of all comparable columns.
 	 *
 	 * @return comparable columns
