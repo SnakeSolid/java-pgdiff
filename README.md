@@ -82,6 +82,10 @@ Configuration file example:
 
 ```yaml
 ---
+outputType: TABLE # type of output - DIFF = diff like, TABLE = table like as psql. Default value - TABLE.
+delimiter: " | " # delimiter for DIFF output, by default " | "
+bufferSize: 10 # buffer size for TABLE output, used to calculate column widths
+
 tables:
   my_schema.good_table: # this settings will be used only for table my_schema.good_table.
     display: # these fields will be shown in diff output.
