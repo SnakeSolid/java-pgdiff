@@ -13,6 +13,12 @@ public class Configuration {
 
 	private JoinMethod join;
 
+	private OutputType outputType;
+
+	private String delimiter;
+
+	private int bufferSize;
+
 	private Map<String, TableConfig> tables;
 
 	/**
@@ -21,6 +27,9 @@ public class Configuration {
 	public Configuration() {
 		this.join = JoinMethod.POSTGRES;
 		this.tables = new HashMap<>();
+		this.outputType = OutputType.TABLE;
+		this.delimiter = " | ";
+		this.bufferSize = 1_000;
 	}
 
 	/**
@@ -30,6 +39,33 @@ public class Configuration {
 	 */
 	public JoinMethod getJoin() {
 		return join;
+	}
+
+	/**
+	 * Returns output type.
+	 *
+	 * @return output type
+	 */
+	public OutputType getOutput() {
+		return outputType;
+	}
+
+	/**
+	 * Returns delimiter string for {@link OutputType#DIFF} output type.
+	 *
+	 * @return delimiter string
+	 */
+	public String getDelimiter() {
+		return delimiter;
+	}
+
+	/**
+	 * Returns buffer size for {@link OutputType#TABLE} output type.
+	 *
+	 * @return vuffer size
+	 */
+	public int getBufferSize() {
+		return bufferSize;
 	}
 
 	/**

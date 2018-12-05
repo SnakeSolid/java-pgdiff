@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Set;
 
 import ru.snake.util.pgdiff.comparator.ComparatorFactory;
@@ -11,6 +12,8 @@ import ru.snake.util.pgdiff.comparator.ResultSetComparator;
 import ru.snake.util.pgdiff.config.Configuration;
 import ru.snake.util.pgdiff.config.TableConfig;
 import ru.snake.util.pgdiff.query.QueryBuilder;
+import ru.snake.util.pgdiff.writer.RowData;
+import ru.snake.util.pgdiff.writer.RowWriter;
 
 /**
  * Table comparator based on merging two sorted result sets. Comparator read
@@ -29,6 +32,8 @@ public class TableComparator {
 
 	private final Configuration config;
 
+	private final RowWriter writer;
+
 	private final TableNames tables;
 
 	/**
@@ -40,13 +45,17 @@ public class TableComparator {
 	 *            second connection
 	 * @param config
 	 *            configuration
+	 * @param writer
+	 *            row output writer
 	 * @param table
 	 *            tables description
 	 */
-	public TableComparator(Connection connection1, Connection connection2, Configuration config, TableNames table) {
+	public TableComparator(Connection connection1, Connection connection2, Configuration config, RowWriter writer,
+			TableNames table) {
 		this.connection1 = connection1;
 		this.connection2 = connection2;
 		this.config = config;
+		this.writer = writer;
 		this.tables = table;
 	}
 
@@ -70,6 +79,8 @@ public class TableComparator {
 			throw new DifferentSchemaException(this.tables.getFullTableName1(), this.tables.getFullTableName2());
 		}
 
+		this.writer.setHeader(getRowHeader(leftRow), getRowHeader(rightRow));
+
 		// TODO: create comparator valid for both rows, according column
 		// indexes.
 		ResultSetComparator comparator = ComparatorFactory.createRowComparator(leftRow);
@@ -88,18 +99,20 @@ public class TableComparator {
 			while (leftIt.hasRow() && rightIt.hasRow()) {
 				switch (comparator.compare(leftResultSet, rightResultSet)) {
 				case TAKE_LEFT:
-					System.out.println("> " + leftIt.getRowString());
+					this.writer.pushLeft(leftIt.getRow());
 
 					leftIt.next();
 					break;
 
 				case MOVE_NEXT:
+					this.writer.pushSeparator();
+
 					leftIt.next();
 					rightIt.next();
 					break;
 
 				case TAKE_RIGHT:
-					System.out.println("< " + rightIt.getRowString());
+					this.writer.pushRight(rightIt.getRow());
 
 					rightIt.next();
 					break;
@@ -108,20 +121,40 @@ public class TableComparator {
 
 			// Show remaining row from first result set
 			while (leftIt.hasRow()) {
-				System.out.println("> " + leftIt.getRowString());
+				this.writer.pushLeft(leftIt.getRow());
 
 				leftIt.next();
 			}
 
 			// Show remaining row from second result set
 			while (rightIt.hasRow()) {
-				System.out.println("< " + rightIt.getRowString());
+				this.writer.pushRight(rightIt.getRow());
 
 				rightIt.next();
 			}
 		} catch (SQLException e) {
 			throw new QueryExecutionException(e);
 		}
+
+		this.writer.flush();
+	}
+
+	/**
+	 * Create and return new row data with all displayable column names.
+	 *
+	 * @param row
+	 *            row descriptor
+	 * @return row header
+	 */
+	private RowData getRowHeader(RowDescriptor row) {
+		List<ColumnDescriptor> columns = row.getDisplayColumns();
+		RowData result = new RowData(columns.size());
+
+		for (ColumnDescriptor column : columns) {
+			result.push(column.getName());
+		}
+
+		return result;
 	}
 
 	private RowDescriptor createRowDescriptor(Connection connection, String schemaName, String tableName)
@@ -147,7 +180,7 @@ public class TableComparator {
 	@Override
 	public String toString() {
 		return "TableComparator [connection1=" + connection1 + ", connection2=" + connection2 + ", config=" + config
-				+ ", table=" + tables + "]";
+				+ ", writer=" + writer + ", tables=" + tables + "]";
 	}
 
 }

@@ -24,6 +24,9 @@ import ru.snake.util.pgdiff.options.CliOptionsParseException;
 import ru.snake.util.pgdiff.options.InvalidPortException;
 import ru.snake.util.pgdiff.options.NoParameterException;
 import ru.snake.util.pgdiff.options.OptionsParser;
+import ru.snake.util.pgdiff.writer.DiffWriter;
+import ru.snake.util.pgdiff.writer.RowWriter;
+import ru.snake.util.pgdiff.writer.TableWriter;
 
 /**
  * Main class contains error processing, validation and comparison loop.
@@ -91,11 +94,13 @@ public class Main {
 		DataSource dataSource2 = createDatasource(options::getUser2, options::getPassword2, options::getHost2,
 				options::getPort2, options::getDbName2);
 
+		RowWriter writer = createRowWriter(config);
+
 		try (Connection connection1 = dataSource1.getConnection();
 				Connection connection2 = dataSource2.getConnection()) {
 			for (String tableName : options.getTableNames()) {
 				TableNames table = TableNames.fromString(tableName);
-				TableComparator comparator = new TableComparator(connection1, connection2, config, table);
+				TableComparator comparator = new TableComparator(connection1, connection2, config, writer, table);
 
 				System.out.println(
 						String.format("Comparing tables %s and %s...", table.getTableName1(), table.getTableName2()));
@@ -117,6 +122,32 @@ public class Main {
 		}
 
 		return EXIT_SUCCESS;
+	}
+
+	/**
+	 * Create new row writer according configuration settings.
+	 *
+	 * @param config
+	 *            configuration.
+	 * @return row writer
+	 */
+	private RowWriter createRowWriter(Configuration config) {
+		RowWriter writer;
+
+		switch (config.getOutput()) {
+		case DIFF:
+			writer = new DiffWriter(System.out, config.getDelimiter());
+			break;
+
+		case TABLE:
+			writer = new TableWriter(System.out, config.getBufferSize());
+			break;
+
+		default:
+			throw new RuntimeException("Method side by side unimplemented");
+		}
+
+		return writer;
 	}
 
 	/**

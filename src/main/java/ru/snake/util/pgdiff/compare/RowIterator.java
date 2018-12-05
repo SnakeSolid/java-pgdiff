@@ -10,6 +10,7 @@ import ru.snake.util.pgdiff.format.NumberFormatter;
 import ru.snake.util.pgdiff.format.StaticFormatter;
 import ru.snake.util.pgdiff.format.StringFormatter;
 import ru.snake.util.pgdiff.format.ValueFormatter;
+import ru.snake.util.pgdiff.writer.RowData;
 
 /**
  * Wrapper over {@link ResultSet} to provide iteration and display methods.
@@ -57,21 +58,14 @@ public class RowIterator {
 	 * @throws SQLException
 	 *             if some error occurred during reading values
 	 */
-	public String getRowString() throws SQLException {
-		StringBuilder builder = new StringBuilder();
-		boolean isFirst = true;
+	public RowData getRow() throws SQLException {
+		RowData result = new RowData(this.formatters.size());
 
 		for (ValueFormatter formatter : this.formatters) {
-			if (isFirst) {
-				isFirst = false;
-			} else {
-				builder.append(" | ");
-			}
-
-			builder.append(formatter.format(this.resultSet));
+			result.push(formatter.format(this.resultSet));
 		}
 
-		return builder.toString();
+		return result;
 	}
 
 	/**
