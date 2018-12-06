@@ -156,18 +156,20 @@ public class QueryBuilder {
 		isFirst = true;
 
 		for (ColumnDescriptor column : row.getColumns()) {
-			if (isFirst) {
-				isFirst = false;
-			} else {
-				builder.append(", ");
-			}
+			if (column.isCompare()) {
+				if (isFirst) {
+					isFirst = false;
+				} else {
+					builder.append(", ");
+				}
 
-			builder.append('"');
-			builder.append(column.getName());
-			builder.append("\" ASC");
+				builder.append('"');
+				builder.append(column.getName());
+				builder.append("\" ASC");
 
-			if (column.isNullable()) {
-				builder.append(" NULLS LAST");
+				if (column.isNullable()) {
+					builder.append(" NULLS LAST");
+				}
 			}
 		}
 
