@@ -26,6 +26,7 @@ import ru.snake.util.pgdiff.options.NoParameterException;
 import ru.snake.util.pgdiff.options.OptionsParser;
 import ru.snake.util.pgdiff.writer.DiffWriter;
 import ru.snake.util.pgdiff.writer.RowWriter;
+import ru.snake.util.pgdiff.writer.SideBySideWriter;
 import ru.snake.util.pgdiff.writer.TableWriter;
 
 /**
@@ -143,8 +144,12 @@ public class Main {
 			writer = new TableWriter(System.out, config.getBufferSize());
 			break;
 
+		case SIDE_BY_SIDE:
+			writer = new SideBySideWriter(System.out, config.getBufferSize());
+			break;
+
 		default:
-			throw new RuntimeException("Method side by side unimplemented");
+			throw new RuntimeException("Output method unimplemented");
 		}
 
 		return writer;
