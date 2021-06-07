@@ -11,7 +11,7 @@
 	<properties>
 		<manifest.main.class>ru.snake.util.pgdiff.Main</manifest.main.class>
 
-		<logback.version>1.0.13</logback.version>
+		<logback.version>1.2.0</logback.version>
 		<commons-cli.version>1.4</commons-cli.version>
 		<postgresql.version>42.2.5</postgresql.version>
 		<yamlbeans.version>1.13</yamlbeans.version>
