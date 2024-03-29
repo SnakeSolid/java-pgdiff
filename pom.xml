@@ -13,7 +13,7 @@
 
 		<logback.version>1.2.13</logback.version>
 		<commons-cli.version>1.4</commons-cli.version>
-		<postgresql.version>42.4.1</postgresql.version>
+		<postgresql.version>42.4.4</postgresql.version>
 		<yamlbeans.version>1.13</yamlbeans.version>
 		<jupiter.version>5.3.2</jupiter.version>
 
